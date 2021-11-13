@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_self">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CPanel Dashboard</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="https://pmcctg.web.app/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.4/css/materialize.min.css">
+  <script type = "text/javascript" src = "https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-alpha.4/js/materialize.min.js"></script>
+  
+  </head>
+  <body>
+    <div class="row">
+    <p>Hello <b><?= name ?></b>,<b><?= hash ?></b></p>
+
+    <button class="btn waves-effect waves-light" id="logout">Log Out
+          <i class="material-icons right">exit_to_app</i> 
+    </button>
+      <button class="btn waves-effect waves-light" id="btn">New Entry
+          <i class="material-icons right">edit</i> 
+      </button>
+      
+    <div id="wait" style="display:none;"><div class="row">
+      <div class="col s12 m6">
+        <div class="card blue-grey darken-1">
+        <div class="card-content white-text">
+           <div class="row">
+            <div class="input-field col s6">
+              <input disabled value="<?= name ?>" id="staff" type="text" class="validate">
+              <label for="staff">Staff Name</label>
+            </div>
+            <div class="input-field col s6">
+              <font id="pduct" size="4">0</font>
+            </div>
+            <div class="input-field col s12">
+              <input type="text" id="dr_name" class="autocomplete">
+              <label for="dr_name">Orthosis Name</label>
+            </div>
+            </div>
+          <button class="btn waves-effect waves-light" id="add1">
+            <i class="material-icons center">control_point</i>
+          </button>
+          <button class="btn waves-effect waves-light" id="add2">
+            <i class="material-icons center">cancel</i>
+          </button>
+          <button class="btn waves-effect waves-light" id="add3">
+            <i class="material-icons center">search</i>
+          </button>
+        </div>
+        <div class="card-action">
+          
+        </div>
+        </div>
+      </div>
+      </div>
+    </div><br>
+    </div>
+
+    <script>
+    var valuee;    
+    
+    $(document).ready(function(){
+        //any data
+    });
+
+    function populatename(values){     
+      valuee = JSON.parse(values);
+      var value1 = {};
+      value1 = toObject(valuee);
+      $('#dr_name').autocomplete({ 
+          data: value1,
+        onAutocomplete: function(txt) {
+          sendItem(txt);
+        },
+        limit: 7,
+      });
+    }
+    
+    function sendItem(val) {
+       console.log(val);
+    }
+    
+    function toObject(arr) {
+      var rv = {};
+      for (var i = 0; i < arr.length; ++i)
+      rv[arr[i]] = null;
+      return rv;
+    }
+     
+    $('#btn').on('click',function(){
+      $('#wait').show();
+      google.script.run.withSuccessHandler(populatename).getList();
+    });
+    
+    $('#add1').on('click',function(){
+      if ($('#dr_name').val().length <1 ){
+        M.toast({html: 'Empty Product Name.'});return;
+      }
+
+      google.script.run.withSuccessHandler(function(output){
+        if (output == 'ok'){
+          $('#wait').fadeOut();M.toast({html: 'Entry done.'});M.updateTextFields();
+          google.script.run.withSuccessHandler().addOne(valuee.indexOf($('#dr_name').val()));$('#dr_name').val('');
+        }
+      }).appendRow($('#staff').val(),$('#dr_name').val(),new Date().toString(),'add');
+    });
+    
+    $('#add2').on('click',function(){
+      if ($('#dr_name').val().length <1 ){
+        M.toast({html: 'Empty Product Name.'});return;
+      }
+      google.script.run.withSuccessHandler(function(output){
+        if (output == 'ok'){
+          $('#wait').fadeOut();M.toast({html: 'Entry done.'});M.updateTextFields();
+          google.script.run.withSuccessHandler().lessOne(valuee.indexOf($('#dr_name').val()));$('#dr_name').val('');
+        }
+      }).appendRow($('#staff').val(),$('#dr_name').val(),new Date().toString(),'Return');
+    });
+    
+    $('#add3').on('click',function(){
+      if ($('#dr_name').val().length <1 ){
+        M.toast({html: 'Empty Product Name.'});return;
+      }
+      google.script.run.withSuccessHandler(seeItem).checkList(valuee.indexOf($('#dr_name').val()));
+    });
+    
+    function seeItem(val) {
+       $('#pduct').text(val);
+       M.toast({html: 'Search done.'});
+    }
+    
+    $('#logout').on('click',function(){
+       M.toast({html: 'Log Out not working. Refresh this page or close.'});
+      //i can not figure out when i tried in iframe
+    });
+
+    $('#add').on('click',function(){
+      if ($('#dr_name').val().length <1 ){
+        M.toast({html: 'Empty Referred Doctor Name.'});return;
+      }else if ($('#itemSelect').val().length <1 ){
+        M.toast({html: 'Empty Therapy Name.'});return;
+      }
+
+      google.script.run.withSuccessHandler(function(output){
+        if (output == 'ok'){
+          $('#wait').fadeOut();M.toast({html: 'Entry done.'});M.updateTextFields();
+        }
+      }).appendRow($('#staff').val(),$('#dr_name').val(),new Date().toString(),'Sale');
+    });    
+    
+    </script>
+
+  </body>
+</html>
